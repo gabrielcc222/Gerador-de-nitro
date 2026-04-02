@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 1.8em;
+            border-bottom: 2px dotted #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        #output {
+            border: 1px solid #ddd;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .counter {
+            text-align: right;
+            font-size: 0.9em;
+            color: #777;
+        }
+        
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerador de Nitro</h1>
+        
+        <div class="input-group">
+            <label for="count">coloque a quantidade de links que você quer gerar abaixo:</label>
+            <input type="number" id="count" min="1" max="1500000" value="10">
+        </div>
+        
+        <div style="text-align: center;">
+            <button id="generate">gerar</button>
+            <button id="download">baixar</button>
+        </div>
+        
+        <div class="counter">
+            Generated: <span id="counter">0</span> links
+        </div>
+        
+        <div id="output"></div>
+        
+        <div class="footer">
+            made by black store
+        </div>
+    </div>
+    
+    <script>
+        const output = document.getElementById('output');
+        const counter = document.getElementById('counter');
+        const generateBtn = document.getElementById('generate');
+        const downloadBtn = document.getElementById('download');
+        const countInput = document.getElementById('count');
+        
+        let generatedCount = 0;
+        
+        const BASE_URL = "https://discord.com/billing/promotions/";
+        
+        const CHAR_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        
+        function generateNitroCode() {
+            const CODE_LENGTH = 24;
+            
+            let code = '';
+            for (let i = 0; i < CODE_LENGTH; i++) {
+                code += CHAR_SET.charAt(Math.floor(Math.random() * CHAR_SET.length));
+            }
+            
+            return code;
+        }
+        
+        function generateNitroLink() {
+            return BASE_URL + generateNitroCode();
+        }
+        
+        function generateLinks(count) {
+            const links = [];
+            for (let i = 0; i < count; i++) {
+                links.push(generateNitroLink());
+            }
+            return links;
+        }
+        
+        function displayLinks(links) {
+            output.innerHTML = '';
+            links.forEach(link => {
+                const linkElement = document.createElement('p');
+                linkElement.textContent = link;
+                output.appendChild(linkElement);
+            });
+            
+            generatedCount = links.length;
+            counter.textContent = generatedCount;
+        }
+        
+        function downloadLinks() {
+            if (generatedCount === 0) {
+                alert('Sem links para baixar. Por favor, gere alguns links primeiro.');
+                return;
+            }
+            
+            const content = output.innerText;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nitro_links_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        generateBtn.addEventListener('click', () => {
+            const count = parseInt(countInput.value) || 1;
+            if (count > 1500000) {
+                alert('Maximum 1500000 links at once');
+                return;
+            }
+            const links = generateLinks(count);
+            displayLinks(links);
+        });
+        
+        downloadBtn.addEventListener('click', downloadLinks);
+        
+        window.addEventListener('load', () => {
+            const links = generateLinks(5);
+            displayLinks(links);
+        });
+    </script>
+</body>
+</html>
